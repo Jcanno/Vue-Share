@@ -1,6 +1,6 @@
 # 调试Vue
 
-本节主要是提供读者自主探索源码的方式，Vue源码是由[Rollup](https://www.rollupjs.com/)构建的，后者是许多JavaScript类库的构建工具。
+本节主要是提供读者自主调试源码的方式，Vue源码是由[Rollup](https://www.rollupjs.com/)构建的，后者是许多JavaScript类库的构建工具。
 
 要开启Vue源码调试需要以下步骤:
 - 在Vue源码根目录的`package.json`文件下，在`dev`的script开启`sourceMap`标识，如下代码所示:
