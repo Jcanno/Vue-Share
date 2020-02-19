@@ -10,4 +10,6 @@ Vue是前端领域炙手可热的三大框架之一，其`MVVM`的架构大大�
 
 开源社区里有许多其他优秀的Vue源码解析文档，如[Vue.js技术揭秘](https://ustbhuangyi.github.io/vue-analysis/)、[learnVue](https://github.com/answershuto/learnVue)等，它们给予我在学习Vue源码上非常大的帮助。因此，本文档希望能成为这些优秀文档的补充。
 
+本文档的写作风格:注重代码核心逻辑、部分代码分支逻辑可由读者自行探索、各部分章节内容以精简的`总结`开头。
+
 !> 本文档Vue源码版本为`2.6.11`
