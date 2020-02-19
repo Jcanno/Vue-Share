@@ -1,5 +1,9 @@
-* [写在前面](/)
+* 前言
+
+	* [写在前面](/)
 
 * 开始动手
 
   * [源码要点](/start/mainpoint.md)
+  * [调试Vue](/start/debug.md)
+  * [项目结构](/start/construction.md)
