@@ -110,7 +110,7 @@ export default Vue
 以上代码核心有两点：
 
 - 引入了`./runtime/index`的Vue
-- 在Vue原型链上重新定义了`$mount`方法，这个方法添加了编译功能，我们会在编译的有关章节再详细描述
+- 在Vue原型上重新定义了`$mount`方法，这个方法添加了编译功能，我们会在编译的有关章节再详细描述
 
 我们接着看`./runtime/index`文件
 
@@ -194,10 +194,44 @@ export default Vue
 ```
 这里的核心有以下几点：
 - 引入了`core/index`的Vue
-- 这里又在Vue原型链上定义了`$mount`方法，`./runtime/index`文件中`$mount`方法先被定义，`entry-runtime-with-compiler.js`中重写了`$mount`方法，主要添加了编译`template`功能。
-- 在原型链上定义了`__patch__`方法，这个方法用于将虚拟dom渲染成真实dom
+- 这里又在Vue原型上定义了`$mount`方法，`./runtime/index`文件中`$mount`方法先被定义，`entry-runtime-with-compiler.js`中重写了`$mount`方法，主要添加了编译`template`功能。
+- 在原型上定义了`__patch__`方法，这个方法用于将虚拟dom渲染成真实dom
 
 我们继续看`core/index`Vue的实现，定位在`src/core/index`中
+```js
+import Vue from './instance/index'
+import { initGlobalAPI } from './global-api/index'
+import { isServerRendering } from 'core/util/env'
+import { FunctionalRenderContext } from 'core/vdom/create-functional-component'
+
+initGlobalAPI(Vue)
+
+Object.defineProperty(Vue.prototype, '$isServer', {
+  get: isServerRendering
+})
+
+Object.defineProperty(Vue.prototype, '$ssrContext', {
+  get () {
+    /* istanbul ignore next */
+    return this.$vnode && this.$vnode.ssrContext
+  }
+})
+
+// expose FunctionalRenderContext for ssr runtime helper installation
+Object.defineProperty(Vue, 'FunctionalRenderContext', {
+  value: FunctionalRenderContext
+})
+
+Vue.version = '__VERSION__'
+
+export default Vue
+```
+这里有以下几点核心:
+- 引入了`./instance/index`的Vue
+- 执行`initGlobalAPI`函数，安装全局api，这个部分我们下节再详细说明
+
+继续看`src/instance/index`Vue的实现
+
 ```js
 import { initMixin } from './init'
 import { stateMixin } from './state'
@@ -225,7 +259,13 @@ export default Vue
 ```
 这段代码的核心以下两点:
 - 定义了Vue，在其构造函数中调用了私有`_init`方法
-- 将Vue传递给各个模块，实现Vue原型的初始化及配置了一些属性
+- 将Vue传递给各个模块，将方法添加到Vue的原型上，并实现部分属性的初始化
+	1. initMixin:定义了`_init`私有方法，初始化了事件、渲染、数据响应等功能
+	2. stateMixin:注册`$watch`、`$set`、`$delete`有关数据状态的函数
+	3. eventsMixin:注册`$on`、`$off`、`$emit`、`$once`有关事件机制的函数
+	4. lifecycleMixin:注册`_update`、`$forceUpdate`、`$destroy`有关生命周期的函数
+	5. renderMixin:注册`$nextTick`、`_render`有关渲染render函数的方法
+
 
 ## 总结
-Vue底层是有函数实现，并通过传递构造函数来实现各个模块的初始化。
+Vue底层是由函数实现，并通过传递构造函数来实现各个模块的初始化。我们先大致了解各个模块初始化时安装了什么函数和做了什么配置，等到需要时再详细看它方法的实现。
