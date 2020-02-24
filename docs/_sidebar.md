@@ -13,3 +13,9 @@
 	* [初始化Vue](/process/init.md)
 	* [初始化全局API](/process/initGlobalApi.md)
 	* [实例化Vue](/process/instance.md)
+	* [实例的挂载](/process/mount.md)
+	* [mountComponent](/process/mountComponent.md)
+
+* 编译
+
+	* [parse](/compiler/parse.md)
