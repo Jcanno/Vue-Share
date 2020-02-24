@@ -12,3 +12,4 @@
 
 	* [初始化Vue](/process/init.md)
 	* [初始化全局API](/process/initGlobalApi.md)
+	* [实例化Vue](/process/instance.md)
