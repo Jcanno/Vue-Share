@@ -83,5 +83,5 @@ Vue.prototype.$mount = function (
 ```
 这里分为以下几点核心:
 - 原`$mount`其实是在调用`mountComponent`方法
-- 重新定义的`$mount`方法先对原`$mount`进行保存，若配置中没有`render`函数，则通过相关规则获取`template`并配合`compileToFunctions`方法生成`render`函数。`compileToFunctions`的作用是将`template`编译成`render`函数，有关编译的内容可点击[这里](/compiler/parse.md)
+- 重新定义的`$mount`方法先对原`$mount`进行保存，若配置中没有`render`函数，则通过相关规则获取`template`并配合`compileToFunctions`方法生成`render`函数。在我们的例子中，我们使用的是render函数，即`render: h => h(App)`，因此`if`里面的逻辑我们先忽略。
 - 最终调用了保存的原`$mount`方法
