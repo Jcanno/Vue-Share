@@ -16,6 +16,7 @@
 	* [实例的挂载](/process/mount.md)
 	* [mountComponent](/process/mountComponent.md)
 	* [生成vnode](/process/createElement.md)
+	* [执行_update](/process/update.md)
 
 * 编译
 
