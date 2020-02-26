@@ -15,6 +15,7 @@
 	* [实例化Vue](/process/instance.md)
 	* [实例的挂载](/process/mount.md)
 	* [mountComponent](/process/mountComponent.md)
+	* [生成vnode](/process/createElement.md)
 
 * 编译
 
