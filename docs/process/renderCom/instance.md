@@ -1,15 +1,5 @@
 ## 实例化Vue
-前两节我们整体性的了解了Vue初始化时的工作，接下来我们来看Vue的运作过程。
-```js
-const App = {
-	template: `<div>hello world</div>`
-}
-new Vue({
-	el: '#app',
-	render: h => h(App)
-})
-```
-这是Vue使用组件最简单的一个例子，Vue的底层结构是函数，实例化Vue会调用它的构造函数，会调用在初始化配置中设置的`_init`方法。
+根据我们的例子，例子中编写了`render`函数，`render`函数里传入了`App`组件，Vue在`渲染组件`和`渲染组件数据`过程是不一样的。我们先来看Vue在渲染组件上的工作。
 ```js
 // src/core/instance/index
 function Vue (options) {
@@ -22,7 +12,7 @@ function Vue (options) {
 }
 ...
 ```
-我们继续看`_init`方法的实现，定义在`src/core/instance/init`中
+实例化Vue会执行`_init`方法，`_init`方法定义在`src/core/instance/init`中
 ```js
 export function initMixin (Vue: Class<Component>) {
   Vue.prototype._init = function (options?: Object) {
@@ -82,8 +72,9 @@ export function initMixin (Vue: Class<Component>) {
 }
 ```
 
-这里我们依然关注一下几点核心:
-- 有一段合并配置的代码，初始化时`options && options._isComponent`为`false`，因此调用`mergeOptions`方法合并了配置，做了继承配置的工作
+**核心要点:**
+
+- 有一段合并配置的代码，在首次调用时`options && options._isComponent`为`false`，因此调用`mergeOptions`方法合并配置
 - 在实例上初始化了有关各模块一系列的属性(这里我们先大致了解，暂不做详细展开)
 	1. initLifecycle: 初始化了有关生命周期的属性
 	2. initEvents: 初始化了有关事件机制的属性

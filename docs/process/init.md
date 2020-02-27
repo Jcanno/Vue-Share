@@ -1,5 +1,16 @@
+## 使用例子
+```js
+const App = {
+	template: `<div>hello world</div>`
+}
+new Vue({
+	el: '#app',
+	render: h => h(App)
+})
+```
+!> 本章使用上述例子作为描述对象，文中出现的**例子**都指代上述代码
 ## 找到入口
-上一章节项目结构说道platforms文件夹包含了`web`和`weex`平台的入口文件。在`web`文件夹中有`entry-compiler.js`、`entry-runtime.js`和`entry-runtime-with-compiler.js`,分别代表只编译入口文件、运行时入口文件和带有编译的入口文件。可以看到，Vue是有运行时和编译版本的，我们来看带有编译的入口文件。
+上一章节在项目结构里说到platforms文件夹包含了`web`和`weex`平台的入口文件。在`web`文件夹中有`entry-compiler.js`、`entry-runtime.js`和`entry-runtime-with-compiler.js`,分别代表只编译入口文件、运行时入口文件和带有编译的入口文件。可以看到，Vue是有运行时和编译版本的，我们来看带有编译的入口文件。
 
 ```js
 /* @flow */
@@ -107,7 +118,7 @@ Vue.compile = compileToFunctions
 export default Vue
 ```
 
-以上代码核心有两点：
+**核心要点:**
 
 - 引入了`./runtime/index`的Vue
 - 在Vue原型上重新定义了`$mount`方法，这个方法添加了编译功能，我们会在编译的有关章节再详细描述
@@ -192,12 +203,13 @@ if (inBrowser) {
 
 export default Vue
 ```
-这里的核心有以下几点：
+**核心要点:**
+
 - 引入了`core/index`的Vue
 - 这里又在Vue原型上定义了`$mount`方法，`./runtime/index`文件中`$mount`方法先被定义，`entry-runtime-with-compiler.js`中重写了`$mount`方法，主要添加了编译`template`功能。
-- 在原型上定义了`__patch__`方法，这个方法用于将虚拟dom渲染成真实dom
+- 在原型上定义了`__patch__`方法，这个方法用于将`vnode`渲染成真实dom
 
-我们继续看`core/index`Vue的实现，定位在`src/core/index`中
+我们继续看`core/index`Vue的实现，定义在`src/core/index`中
 ```js
 import Vue from './instance/index'
 import { initGlobalAPI } from './global-api/index'
@@ -226,11 +238,14 @@ Vue.version = '__VERSION__'
 
 export default Vue
 ```
-这里有以下几点核心:
+**核心要点:**
+
 - 引入了`./instance/index`的Vue
-- 执行`initGlobalAPI`函数，安装全局api，这个部分我们下节再详细说明
+- 执行`initGlobalAPI`函数，安装全局api，查看详情点击[这里](process/init?id=初始化全局API)
 
 继续看`src/instance/index`Vue的实现
+
+## 初始化工作
 
 ```js
 import { initMixin } from './init'
@@ -257,7 +272,7 @@ renderMixin(Vue)
 
 export default Vue
 ```
-这段代码的核心以下两点:
+**核心要点:**
 - 定义了Vue，在其构造函数中调用了私有`_init`方法
 - 将Vue传递给各个模块，将方法添加到Vue的原型上，并实现部分属性的初始化
 	1. initMixin:定义了`_init`私有方法，初始化了事件、渲染、数据响应等功能
@@ -266,6 +281,89 @@ export default Vue
 	4. lifecycleMixin:注册`_update`、`$forceUpdate`、`$destroy`有关生命周期的函数
 	5. renderMixin:注册`$nextTick`、`_render`有关渲染render函数的方法
 
+## 初始化全局API
+
+在引入Vue的时候，又执行了`initGlobalAPI`函数，这个函数就是在Vue上全局注册方法，定义在`src/core/global-api/index.js`
+```js
+/* @flow */
+
+import config from '../config'
+import { initUse } from './use'
+import { initMixin } from './mixin'
+import { initExtend } from './extend'
+import { initAssetRegisters } from './assets'
+import { set, del } from '../observer/index'
+import { ASSET_TYPES } from 'shared/constants'
+import builtInComponents from '../components/index'
+import { observe } from 'core/observer/index'
+
+import {
+  warn,
+  extend,
+  nextTick,
+  mergeOptions,
+  defineReactive
+} from '../util/index'
+
+export function initGlobalAPI (Vue: GlobalAPI) {
+  // config
+  const configDef = {}
+  configDef.get = () => config
+  if (process.env.NODE_ENV !== 'production') {
+    configDef.set = () => {
+      warn(
+        'Do not replace the Vue.config object, set individual fields instead.'
+      )
+    }
+  }
+  Object.defineProperty(Vue, 'config', configDef)
+
+  // exposed util methods.
+  // NOTE: these are not considered part of the public API - avoid relying on
+  // them unless you are aware of the risk.
+  Vue.util = {
+    warn,
+    extend,
+    mergeOptions,
+    defineReactive
+  }
+
+  Vue.set = set
+  Vue.delete = del
+  Vue.nextTick = nextTick
+
+  // 2.6 explicit observable API
+  Vue.observable = <T>(obj: T): T => {
+    observe(obj)
+    return obj
+  }
+
+  Vue.options = Object.create(null)
+  ASSET_TYPES.forEach(type => {
+    Vue.options[type + 's'] = Object.create(null)
+  })
+
+  // this is used to identify the "base" constructor to extend all plain-object
+  // components with in Weex's multi-instance scenarios.
+  Vue.options._base = Vue
+
+  extend(Vue.options.components, builtInComponents)
+
+  initUse(Vue)
+  initMixin(Vue)
+  initExtend(Vue)
+  initAssetRegisters(Vue)
+}
+```
+
+**核心要点:**
+- 在Vue上注册了多个方法和属性，如`set`、`delete`、`nextTick`等
+- 以各模块分散安装
+	1. initUse:注册`use`方法，用于安装Vue插件
+	2. initMixin:注册`mixin`方法，用于混合配置
+	3. initExtend:注册`extend`方法，用于组件的继承
+	4. initAssetRegisters:注册`components、directive、filter`等方法，用于自定义配置
+
 
 ## 总结
-Vue底层是由函数实现，并通过传递构造函数来实现各个模块的初始化。我们先大致了解各个模块初始化时安装了什么函数和做了什么配置，等到需要时再详细看它方法的实现。
+Vue底层是由函数实现，在未实例化之前，Vue通过各个模块进行了初始化，在Vue的原型和全局上添加了方法。

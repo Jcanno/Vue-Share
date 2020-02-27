@@ -1,4 +1,4 @@
-## _update
+## update
 组件的`_render`方法生成了`vnode`，这个`vnode`又作为参数传入了`_update`方法中，我们来看`_update`方法的实现，定义在`src/core/instance/lifecycle.js`中。
 ```js
 Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
@@ -40,7 +40,7 @@ import { patch } from './patch'
 // install platform patch function
 Vue.prototype.__patch__ = inBrowser ? patch : noop
 ```
-在浏览器中引用了`src/platforms/web/runtime/patch.js`中的`patch`方法。
+`web`平台引用了引用了`src/platforms/web/runtime/patch.js`中的`patch`方法。
 ```js
 // src/platforms/web/runtime/patch.js
 /* @flow */
@@ -57,92 +57,52 @@ const modules = platformModules.concat(baseModules)
 export const patch: Function = createPatchFunction({ nodeOps, modules })
 ```
 这里还是引用了`createPatchFunction`方法，定义在`src/core/vdom/patch`中
-
-`createPatchFunction`函数最终返回了`patch`函数，对于我们例子的场景`patch`的参数`oldVnode`是`undefined`，因此会调用`createElm`方法。
 ```js
-function createElm (
-    vnode,
-    insertedVnodeQueue,
-    parentElm,
-    refElm,
-    nested,
-    ownerArray,
-    index
-  ) {
-    if (isDef(vnode.elm) && isDef(ownerArray)) {
-      // This vnode was used in a previous render!
-      // now it's used as a new node, overwriting its elm would cause
-      // potential patch errors down the road when it's used as an insertion
-      // reference node. Instead, we clone the node on-demand before creating
-      // associated DOM element for it.
-      vnode = ownerArray[index] = cloneVNode(vnode)
-    }
-
-    vnode.isRootInsert = !nested // for transition enter check
-    if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
+export function createPatchFunction (backend) {
+	// ...
+	return function patch (oldVnode, vnode, hydrating, removeOnly) {
+    if (isUndef(vnode)) {
+      if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return
     }
 
-    const data = vnode.data
-    const children = vnode.children
-    const tag = vnode.tag
-    if (isDef(tag)) {
-      if (process.env.NODE_ENV !== 'production') {
-        if (data && data.pre) {
-          creatingElmInVPre++
-        }
-        if (isUnknownElement(vnode, creatingElmInVPre)) {
-          warn(
-            'Unknown custom element: <' + tag + '> - did you ' +
-            'register the component correctly? For recursive components, ' +
-            'make sure to provide the "name" option.',
-            vnode.context
-          )
-        }
-      }
+    let isInitialPatch = false
+    const insertedVnodeQueue = []
 
-      vnode.elm = vnode.ns
-        ? nodeOps.createElementNS(vnode.ns, tag)
-        : nodeOps.createElement(tag, vnode)
-      setScope(vnode)
-
-      /* istanbul ignore if */
-      if (__WEEX__) {
-        // in Weex, the default insertion order is parent-first.
-        // List items can be optimized to use children-first insertion
-        // with append="tree".
-        const appendAsTree = isDef(data) && isTrue(data.appendAsTree)
-        if (!appendAsTree) {
-          if (isDef(data)) {
-            invokeCreateHooks(vnode, insertedVnodeQueue)
-          }
-          insert(parentElm, vnode.elm, refElm)
-        }
-        createChildren(vnode, children, insertedVnodeQueue)
-        if (appendAsTree) {
-          if (isDef(data)) {
-            invokeCreateHooks(vnode, insertedVnodeQueue)
-          }
-          insert(parentElm, vnode.elm, refElm)
-        }
-      } else {
-        createChildren(vnode, children, insertedVnodeQueue)
-        if (isDef(data)) {
-          invokeCreateHooks(vnode, insertedVnodeQueue)
-        }
-        insert(parentElm, vnode.elm, refElm)
-      }
-
-      if (process.env.NODE_ENV !== 'production' && data && data.pre) {
-        creatingElmInVPre--
-      }
-    } else if (isTrue(vnode.isComment)) {
-      vnode.elm = nodeOps.createComment(vnode.text)
-      insert(parentElm, vnode.elm, refElm)
+    if (isUndef(oldVnode)) {
+      // empty mount (likely as component), create new root element
+      isInitialPatch = true
+      createElm(vnode, insertedVnodeQueue)
     } else {
-      vnode.elm = nodeOps.createTextNode(vnode.text)
-      insert(parentElm, vnode.elm, refElm)
-    }
+      ...
+		}
+}
+```
+`createPatchFunction`函数定义了非常多的函数，最终返回了`patch`函数，在我们例子首次调用此方法`oldVnode`为`undefined`，会调用`createElm`函数。
+```js
+function createElm (
+  vnode,
+  insertedVnodeQueue,
+  parentElm,
+  refElm,
+  nested,
+  ownerArray,
+  index
+) {
+  if (isDef(vnode.elm) && isDef(ownerArray)) {
+    // This vnode was used in a previous render!
+    // now it's used as a new node, overwriting its elm would cause
+    // potential patch errors down the road when it's used as an insertion
+    // reference node. Instead, we clone the node on-demand before creating
+    // associated DOM element for it.
+    vnode = ownerArray[index] = cloneVNode(vnode)
+  }
+
+  vnode.isRootInsert = !nested // for transition enter check
+  if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
+    return
+  }
+	// ...
 }
 ```
 `createElm`在执行`createComponent`的条件判断时会返回true导致函数返回，我们来看`createComponent`的实现。
@@ -174,7 +134,9 @@ if (isDef(i = i.hook) && isDef(i = i.init)) {
   i(vnode, false /* hydrating */)
 }
 ```
-这里核心就是执行了之前在生成组件vnode函数里`installComponentHooks`方法安装的`init`方法。
+**核心要点:**
+- 执行组件钩子里的`init`方法
+
 ```js
 init (vnode: VNodeWithData, hydrating: boolean): ?boolean {
   if (
@@ -214,10 +176,16 @@ export function createComponentInstanceForVnode (
   return new vnode.componentOptions.Ctor(options)
 }
 ```
-这里的核心就是实例化了之前继承的`Sub`构造函数
+
+**核心要点:**
+- 实例化了之前继承的`Sub`构造函数
+
 ```js
 const Sub = function VueComponent (options) {
   this._init(options)
 }
 ```
-这里就又会执行最初的`_init`方法，之后的流程会和组件的生成方式不同。
+这里就又会执行最初的`_init`方法，之后就会渲染组件内的数据。
+
+## 总结
+组件在`_update`时会调用`patch`方法，执行`init`钩子，最终会实例化保存在`vnode`中的构造器，继续将组件内的数据渲染出来。

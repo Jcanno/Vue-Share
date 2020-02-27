@@ -1,5 +1,94 @@
+## 实例的挂载
+Vue在实例化调用`_init`方法的最后一个动作是调用`$mount`来实现实例挂载。`$mount`方法定义在`src/platforms/web/runtime/index.js`中，因为我们分析的带有编译器版本的Vue，它在`src/platforms/entry-runtime-with-compiler.js`中在原`$mount`方法的基础上重新定义了`$mount`方法。这里我将这两个`$mount`方法结合在一起方便我们观察。
+```js
+// src/platforms/web/runtime/index.js
+// public mount method
+Vue.prototype.$mount = function (
+  el?: string | Element,
+  hydrating?: boolean
+): Component {
+  el = el && inBrowser ? query(el) : undefined
+  return mountComponent(this, el, hydrating)
+}
+
+// src/platforms/entry-runtime-with-compiler.js
+const mount = Vue.prototype.$mount
+Vue.prototype.$mount = function (
+  el?: string | Element,
+  hydrating?: boolean
+): Component {
+  el = el && query(el)
+
+  /* istanbul ignore if */
+  if (el === document.body || el === document.documentElement) {
+    process.env.NODE_ENV !== 'production' && warn(
+      `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
+    )
+    return this
+  }
+
+	const options = this.$options
+
+  // resolve template/el and convert to render function
+  if (!options.render) {
+		let template = options.template
+    if (template) {
+      if (typeof template === 'string') {
+        if (template.charAt(0) === '#') {
+          template = idToTemplate(template)
+          /* istanbul ignore if */
+          if (process.env.NODE_ENV !== 'production' && !template) {
+            warn(
+              `Template element not found or is empty: ${options.template}`,
+              this
+            )
+          }
+        }
+      } else if (template.nodeType) {
+        template = template.innerHTML
+      } else {
+        if (process.env.NODE_ENV !== 'production') {
+          warn('invalid template option:' + template, this)
+        }
+        return this
+      }
+    } else if (el) {
+      template = getOuterHTML(el)
+    }
+    if (template) {
+      /* istanbul ignore if */
+      if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+        mark('compile')
+      }
+
+      const { render, staticRenderFns } = compileToFunctions(template, {
+        outputSourceRange: process.env.NODE_ENV !== 'production',
+        shouldDecodeNewlines,
+        shouldDecodeNewlinesForHref,
+        delimiters: options.delimiters,
+        comments: options.comments
+      }, this)
+      options.render = render
+      options.staticRenderFns = staticRenderFns
+
+      /* istanbul ignore if */
+      if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+        mark('compile end')
+        measure(`vue ${this._name} compile`, 'compile', 'compile end')
+      }
+    }
+  }
+  return mount.call(this, el, hydrating)
+}
+```
+**核心要点:**
+- 原`$mount`其实是在调用`mountComponent`方法
+- 重新定义的`$mount`方法先对原`$mount`进行保存，若配置中没有`render`函数，则通过相关规则获取`template`并配合`compileToFunctions`方法生成`render`函数。在我们的例子中，首次调用使用的是render函数，即`render: h => h(App)`，因此`if`里面的逻辑我们先忽略。
+- 最终调用了保存的原`$mount`方法
+
 ## mountComponent
-上节说到无论是否带有编译器的Vue版本在`$mount`中都会调用`mountComponent`方法，这节我们来看`mountComponent`的实现，`mountComponent`定义在`src/core/instance/lifecycle.js`中
+我们来看`mountComponent`的实现，`mountComponent`定义在`src/core/instance/lifecycle.js`中
+
 ```js
 export function mountComponent (
   vm: Component,
@@ -77,7 +166,8 @@ export function mountComponent (
   return vm
 }
 ```
-这里分为以下几点核心:
+**核心要点:**
+
 - 检查是否有`render`函数
 - 定义了`updateComponent`函数(忽略性能测试的判断，即istanbul ignore if下的代码)
 - 实例化`Watcher`来执行`updateComponent`函数
@@ -194,84 +284,9 @@ export default class Watcher {
 }
 ```
 
-`Watcher`是由类来实现的，在数据响应里`Watcher`扮演数据观察者的角色。在这里实现视图的更新。在调用构造函数过程中，传入的`updateComponent`会被赋值给`this.getter`，最终根据`this.value = this.lazy ? undefined : this.get()`调用`get`方法，在`get`方法主要逻辑是`value = this.getter.call(vm, vm)`这个语句，也就是调用了设置的`getter`函数，即传入的`updateComponent`函数。
+`Watcher`是由类来实现的，在数据响应里`Watcher`扮演数据观察者的角色。在调用构造函数过程中，传入的`updateComponent`会被赋值给`this.getter`，最终根据`this.value = this.lazy ? undefined : this.get()`调用`get`方法，在`get`方法主要逻辑是`value = this.getter.call(vm, vm)`这条语句，也就是调用了设置的`getter`函数，即传入的`updateComponent`函数。
 
-这里`new Watcher`的逻辑就是在执行`updateComponent`函数，`updateComponent`函数则是在执行`vm._update(vm._render(), hydrating)`这条语句，`_update`和`_render`方法在初始化过程中就被声明，分别定义在`src/core/instance/lifecycle.js`和`src/core/instance/render.js`中，我们先来看`_render`函数的实现。
+这里`new Watcher`的逻辑就是在执行`updateComponent`函数，`updateComponent`函数则是在执行`vm._update(vm._render(), hydrating)`这条语句，`_update`和`_render`方法在初始化过程中就被声明，分别定义在`src/core/instance/lifecycle.js`和`src/core/instance/render.js`中。
 
-## _render
-
-```js
-Vue.prototype._render = function (): VNode {
-  const vm: Component = this
-  const { render, _parentVnode } = vm.$options
-
-  if (_parentVnode) {
-    vm.$scopedSlots = normalizeScopedSlots(
-      _parentVnode.data.scopedSlots,
-      vm.$slots,
-      vm.$scopedSlots
-    )
-  }
-  // set parent vnode. this allows render functions to have access
-  // to the data on the placeholder node.
-  vm.$vnode = _parentVnode
-  // render self
-  let vnode
-  try {
-    // There's no need to maintain a stack because all render fns arecalled
-    // separately from one another. Nested component's render fns arecalled
-    // when parent component is patched.
-    currentRenderingInstance = vm
-    vnode = render.call(vm._renderProxy, vm.$createElement)
-  } catch (e) {
-    handleError(e, vm, `render`)
-    // return error render result,
-    // or previous vnode to prevent render error causing blank component
-    /* istanbul ignore else */
-    if (process.env.NODE_ENV !== 'production' && vm.$optionsrenderError) {
-      try {
-        vnode = vm.$options.renderError.call(vm._renderProxy, vm$createElement, e)
-      } catch (e) {
-        handleError(e, vm, `renderError`)
-        vnode = vm._vnode
-      }
-    } else {
-      vnode = vm._vnode
-    }
-  } finally {
-    currentRenderingInstance = null
-  }
-  // if the returned array contains only a single node, allow it
-  if (Array.isArray(vnode) && vnode.length === 1) {
-    vnode = vnode[0]
-  }
-  // return empty vnode in case the render function errored out
-  if (!(vnode instanceof VNode)) {
-    if (process.env.NODE_ENV !== 'production' && Array.isArray(vnode)) {
-      warn(
-        'Multiple root nodes returned from render function. Renderfunction ' +
-        'should return a single root node.',
-        vm
-      )
-    }
-    vnode = createEmptyVNode()
-  }
-  // set parent
-  vnode.parent = _parentVnode
-  return vnode
-}
-```
-这里的核心是`vnode = render.call(vm._renderProxy, vm.$createElement)`，调用`$createElement`方法生成`vnode`，最终将`vnode`返回。
-
-我们来看`$createElement`方法的实现，定义在`src/core/instance/render.js`中。
-```js
-vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)
-```
-我们配合刚才这两条关键语句一起来看`render`函数，Vue中的`render`函数和React中的`render`相似，`render`函数我们通常写法如下
-```js
-h => h('div', {}, 'hello world')
-// 这里的h即为$createElement，我们就确定了传入的参数
-```
-在例子中我们的`render`函数传入了一个组件，组件生成`vnode`和非组件生成`vnode`过程又有点不同，下节我们来看`createElement`方法的实现。
 ## 总结
-这节我们主要指导了`mountComponent`函数实例化了一个`Watcher`，实际就是在调用`updateComponent`函数，`updateComponent`函数又是在执行`_update`和`_render`函数，我们也确定了`_render`方法中`$createElement`方法的参数。
+带有编译功能的Vue版本在原`$mount`方法上添加了编译`template`功能，根据我们例子的场景，首次调用不会编译，因为我们传入了`render`函数。在后来的`mountComponent`方法中执行`updateComponent`方法，就是在执行`vm._update(vm._render(), hydrating)`。
