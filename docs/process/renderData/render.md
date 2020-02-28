@@ -168,4 +168,4 @@ function normalizeArrayChildren (children: any, nestedIndex?: string): Array<VNo
 **核心要点:**
 - `normalizeArrayChildren`接收`children`和`nestedIndex`(嵌套索引)，如果`children`的子元素也是数组的话，则递归调用`normalizeArrayChildren`
 - 如果`children`子元素为原始数据类型，并且上一元素为文本节点，则将这两个节点拼在一起
-- 如果`children`是列表，则通过`nestedIndex`来更新它的`key`。
+- 如果`children`是列表，则通过`nestedIndex`来更新它的`key`

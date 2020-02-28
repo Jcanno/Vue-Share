@@ -79,6 +79,8 @@ export function createPatchFunction (backend) {
 }
 ```
 `createPatchFunction`函数定义了非常多的函数，最终返回了`patch`函数，在我们例子首次调用此方法`oldVnode`为`undefined`，会调用`createElm`函数。
+
+## createElm
 ```js
 function createElm (
   vnode,
