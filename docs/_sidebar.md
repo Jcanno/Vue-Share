@@ -4,7 +4,7 @@
 
 * 开始动手
 
-  * [源码要点](/start/mainPoint.md)
+  * [源码要点](/start/point.md)
   * [调试Vue](/start/debug.md)
   * [项目结构](/start/construction.md)
 
