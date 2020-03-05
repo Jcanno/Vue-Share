@@ -35,7 +35,8 @@
     * [数据响应](/process/dataResponse/data.md)
     * [观察者](/process/dataResponse/observe.md)
 
-* Vue问答
+* Vue QA
 
   * [Introduction](/QA/introduction.md)
   * [问一](/QA/lifecycle.md)
+  * [问二](/QA/function.md)
