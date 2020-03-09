@@ -38,5 +38,6 @@
 * Vue QA
 
   * [Introduction](/QA/introduction.md)
-  * [为何是function](/QA/function.md)
+  * [Vue为何是function](/QA/function.md)
   * [组件的生命周期](/QA/lifecycle.md)
+  * [data为何是函数](/QA/data.md)
