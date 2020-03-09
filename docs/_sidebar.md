@@ -41,3 +41,4 @@
   * [Vue为何是function](/QA/function.md)
   * [组件的生命周期](/QA/lifecycle.md)
   * [data为何是函数](/QA/data.md)
+  * [nextTick的作用](/QA/nexttick.md)
