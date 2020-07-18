@@ -43,6 +43,7 @@
 
 		* [Vue如何追踪变化](/docs/QA/reactive/trace.md)
 		* [状态与依赖](/docs/QA/reactive/dep.md)
+		* [检测数组变化](/docs/QA/reactive/array.md)
 		* [nextTick的作用](/docs/QA/reactive/nexttick.md)
   
   * [组件的生命周期](/QA/lifecycle.md)
