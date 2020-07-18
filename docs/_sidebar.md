@@ -37,8 +37,15 @@
 
 * Vue QA
 
-  * [Introduction](/QA/introduction.md)
+	* [Introduction](/QA/introduction.md)
+
+	* **响应式编程**
+
+		* [Vue如何追踪变化](/docs/QA/reactive/trace.md)
+		* [状态与依赖](/docs/QA/reactive/dep.md)
+		* [nextTick的作用](/docs/QA/reactive/nexttick.md)
+  
   * [组件的生命周期](/QA/lifecycle.md)
   * [data为何是函数](/QA/data.md)
-  * [nextTick的作用](/QA/nexttick.md)
-  * [状态与依赖](/QA/dep.md)
+  
+  
