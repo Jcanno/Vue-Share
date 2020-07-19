@@ -64,7 +64,7 @@ methodsToPatch.forEach(function (method) {
 6. `push`、`unshift`、`splice`会新增元素，这些元素也需要响应检测，因此调用观察者对象上的`observeArray`，其原理就是遍历新增元素让他们成为响应式的
 7. 最后就是通知依赖更新
 
-`arrayMethods`被改造后能进行数组方法拦截了，现在就需要响应式的数组方法替换成我们改造后的数据方法，就是`arrayMethods`
+`arrayMethods`被改造后能进行数组方法拦截了，现在就需要响应式的数组方法替换成我们改造后的`arrayMethods`对象
 
 ```js
 import { arrayMethods } from './array'

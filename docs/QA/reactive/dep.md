@@ -4,11 +4,11 @@
 1. 首先我们要明白状态，状态就是那些需要`增加响应功能`的数据，例如
 ```js
 export default {
-	data() {
-		return {
-			a: 'hello'
-		}
-	}
+  data() {
+    return {
+      a: 'hello'
+    }
+  }
 }
 ```
 变量`a`就是一个状态。
@@ -16,16 +16,16 @@ export default {
 理解了状态，那依赖就是使用这个状态的「东西」，可以是用户编写的模板：
 ```js
 <template>
-	<div>
-		{{ a }}, world
-	</div>
+  <div>
+    {{ a }}, world
+  </div>
 </template>
 ```
 也可以是用户编写的`watch`：
 
 ```js
 this.$watch('a', function(newVal, oldVal) {
-	// 变量a变化
+  // 变量a变化
 })
 ```
 
@@ -36,9 +36,9 @@ Vue将这些抽象成了一个`watcher`类，就是状态所需要的依赖。
 对于watcher:
 ```js
 this.$watch(function() {
-	return this.name + this.age
+  return this.name + this.age
 }, function(newVal, oldVal) {
-	// 变量a变化
+
 })
 ```
 `watcher`可以接收一个函数，我们这个函数拥有两个状态，也就是说`name`或者`age`中任一一个变化watch都要更新，因此`watch`也可能订阅多个状态。

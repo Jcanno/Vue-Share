@@ -4,16 +4,16 @@
 Vue中实现响应式编程的核心api是`Object.defineProperty`
 ```js
 function defineReactive (obj, key, val) {
-	Object.defineProperty(obj, key, {
-		enumerable: true,
+  Object.defineProperty(obj, key, {
+    enumerable: true,
     configurable: true,
-		get: function reactiveGetter () {
-			return val
+    get: function reactiveGetter () {
+      return val
     },
     set: function reactiveSetter (newVal) {
-			val = newVal
+      val = newVal
     }
-	})
+  })
 }
 ```
 

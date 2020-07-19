@@ -44,8 +44,14 @@
 		* [Vue如何追踪变化](/QA/reactive/trace.md)
 		* [状态与依赖](/QA/reactive/dep.md)
 		* [检测数组变化](/QA/reactive/array.md)
+		* [set/delete原理](/QA/reactive/set.md)
 		* [nextTick的作用](/QA/reactive/nexttick.md)
   
+	* **虚拟DOM**
+
+		* [什么是虚拟DOM](/QA/vdom/vdom.md)
+
+
   * [组件的生命周期](/QA/lifecycle.md)
   * [data为何是函数](/QA/data.md)
   
