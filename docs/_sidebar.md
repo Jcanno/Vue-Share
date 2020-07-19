@@ -50,7 +50,7 @@
 	* **虚拟DOM**
 
 		* [什么是虚拟DOM](/QA/vdom/vdom.md)
-
+		* [Diff过程](/QA/vdom/diff.md)
 
   * [组件的生命周期](/QA/lifecycle.md)
   * [data为何是函数](/QA/data.md)
