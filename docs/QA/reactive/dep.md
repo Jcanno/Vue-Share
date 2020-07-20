@@ -34,13 +34,15 @@ Vue将这些抽象成了一个`watcher`类，就是状态所需要的依赖。
 2. 
 正如上面所说，一个状态`a`可能被使用在模板中，也可能被使用在`watch`中，那么状态可以持有多个依赖，即`dep`对应多个`watcher`，当状态变化通知所有的依赖进行更新
 对于watcher:
+
 ```js
 this.$watch(function() {
-  return this.name + this.age
+	return this.name + this.age
 }, function(newVal, oldVal) {
 
 })
 ```
+
 `watcher`可以接收一个函数，我们这个函数拥有两个状态，也就是说`name`或者`age`中任一一个变化watch都要更新，因此`watch`也可能订阅多个状态。
 
 结论：状态与依赖是多对多的关系，一个状态会持有多个依赖，一个依赖会订阅多个状态

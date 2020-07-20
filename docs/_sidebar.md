@@ -52,6 +52,10 @@
 		* [什么是虚拟DOM](/QA/vdom/vdom.md)
 		* [Diff过程](/QA/vdom/diff.md)
 
+	* **特性**
+
+		* [自定义指令的原理](/QA/feature/directive.md)
+
   * [组件的生命周期](/QA/lifecycle.md)
   * [data为何是函数](/QA/data.md)
   
