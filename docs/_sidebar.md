@@ -56,7 +56,8 @@
 
 		* [自定义指令的原理](/QA/feature/directive.md)
 		* [过滤器的原理](/QA/feature/filter.md)
-		* [事件机制](/QA/feature/event.md)
+		* [事件方法](/QA/feature/event.md)
+		* [父子元素事件绑定](/QA/feature/subevent.md)
 		* [实例销毁机制](/QA/feature/destroy.md)
 
   * [组件的生命周期](/QA/lifecycle.md)
