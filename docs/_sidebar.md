@@ -60,6 +60,7 @@
 		* [父子元素事件绑定](/QA/feature/subevent.md)
 		* [实例销毁机制](/QA/feature/destroy.md)
 		* [computed如何实现](/QA/feature/computed.md)
+		* [keep-alive的原理](/QA/feature/keep-alive.md)
 
   * [组件的生命周期](/QA/lifecycle.md)
   * [data为何是函数](/QA/data.md)
