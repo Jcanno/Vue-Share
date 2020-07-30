@@ -51,6 +51,7 @@
 
 		* [什么是虚拟DOM](/QA/vdom/vdom.md)
 		* [Diff过程](/QA/vdom/diff.md)
+		* [为何index不能作为key](/QA/vdom/index.md)
 
 	* **特性**
 
