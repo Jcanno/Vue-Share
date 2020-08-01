@@ -46,6 +46,7 @@
 		* [检测数组变化](/QA/reactive/array.md)
 		* [set/delete原理](/QA/reactive/set.md)
 		* [nextTick的作用](/QA/reactive/nexttick.md)
+		* [状态变化后都发生了什么](/QA/reactive/reactive.md)
   
 	* **虚拟DOM**
 
