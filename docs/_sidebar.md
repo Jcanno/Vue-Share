@@ -65,6 +65,7 @@
 		* [keep-alive的原理](/QA/feature/keep-alive.md)
 
   * [组件的生命周期](/QA/lifecycle.md)
+  * [MVVM和MVC](/QA/mvvm.md)
   * [data为何是函数](/QA/data.md)
   
   
